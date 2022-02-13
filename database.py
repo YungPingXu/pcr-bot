@@ -23,8 +23,8 @@ cur = conn.cursor()
     );
 """)'''
 #cur.execute("DELETE FROM pcr_tw_news;")
-cur.execute("DELETE FROM webhooklist;")
-cur.execute("INSERT INTO webhooklist VALUES ('https://discord.com/api/webhooks/942361244843769877/8ug7YA50Map9ScJUeYu5CGDR929X14LF3hprMDf0XMsFykgHDo3HZOuNAMZbqxuwKSZS');")
+#cur.execute("DELETE FROM webhooklist;")
+#cur.execute("INSERT INTO webhooklist VALUES ('your webhook url');")
 #cur.execute("SELECT * FROM pcr_tw_news;")
 #cur.execute("SELECT * FROM webhooklist;")
 conn.commit()
