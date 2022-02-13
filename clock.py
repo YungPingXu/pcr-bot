@@ -25,6 +25,7 @@ header = {
 
 @sched.scheduled_job("interval", minutes=5)
 def pcr_tw_news():
+    print("Running pcr_tw_news...")
     r = requests.get("http://www.princessconnect.so-net.tw/news", headers=header)
     soup = BeautifulSoup(r.text, "html.parser")
     news_con = soup.select_one(".news_con dl")
@@ -82,8 +83,8 @@ def pcr_tw_news():
                     else:
                         print("Payload delivered successfully, code {}.".format(result.status_code))
                 sleep(1)
-
     conn.commit()
     conn.close()
+    print("Finished running pcr_tw_news.")
 
 sched.start()

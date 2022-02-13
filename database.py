@@ -11,7 +11,7 @@ port = os.getenv("port")
 
 conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
 cur = conn.cursor()
-'''cur.execute("""
+cur.execute("""
     CREATE TABLE pcr_tw_news(
         time TEXT,
         type TEXT,
@@ -21,7 +21,7 @@ cur = conn.cursor()
     CREATE TABLE webhooklist(
         url TEXT
     );
-""")'''
+""")
 #cur.execute("DELETE FROM pcr_tw_news;")
 #cur.execute("DELETE FROM webhooklist;")
 #cur.execute("INSERT INTO webhooklist VALUES ('your webhook url');")
