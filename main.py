@@ -82,7 +82,7 @@ async def on_message(message): # 當有訊息時
                 else:
                     await message.channel.send("您輸入的補償秒數錯誤，秒數必須要在 1～90 之間！")
             else:
-                await message.channel.send("您輸入的秒數格式錯誤，正確的格式為\n.tr 補償秒數\n文字軸\n\n(.tr 補償秒數後面要直接換行，不要有其他字元)")
+                await message.channel.send("您輸入的秒數格式錯誤！正確的格式為\n.tr 補償秒數\n文字軸\n\n(補償秒數後面請直接換行，不要有其他字元)")
     except Exception as e:
         print(e)
 
