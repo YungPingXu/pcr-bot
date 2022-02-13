@@ -31,25 +31,27 @@ async def on_message(message): # 當有訊息時
     if message.author == client.user: # 排除自己的訊息，避免陷入無限循環
         return
     try:
-        if re.match(r"\s*\.tr\s*[\s\S]+", message.content):
-            tr = re.match(r"\s*\.tr\s*(\d+)\s*\n([\s\S]+)", message.content)
+        message1 = message.content.lower() # 轉為小寫
+        message2 = "" 
+        for c in message1:
+            if c in ("，", "、", "。"):
+                message2 += c
+            elif 65281 <= ord(c) <= 65374:
+                message2 += chr(ord(c) - 65248)
+            elif ord(c) == 12288: # 空格字元
+                message2 += chr(32)
+            else:
+                message2 += c
+        # message2 將 message1 轉為半形
+        if re.match(r"\s*\.tr\s*[\s\S]+", message2):
+            tr = re.match(r"\s*\.tr\s*(\d+)\s*\n([\s\S]+)", message2)
             if tr:
                 time = int(tr.group(1))
                 if 1 <= time <= 90:
                     lines = tr.group(2).split("\n")
                     resultline = ""
                     for line in lines:
-                        tmp = ""
-                        for c in line: # 全形轉半形
-                            if c in ("，", "、", "。"):
-                                tmp += c
-                            elif 65281 <= ord(c) <= 65374:
-                                tmp += chr(ord(c) - 65248)
-                            elif ord(c) == 12288: # 空格字元
-                                tmp += chr(32)
-                            else:
-                                tmp += c
-                        filter = tmp.replace(":", "").replace("\t", "") # 過濾特殊字元
+                        filter = line.replace(":", "").replace("\t", "") # 過濾特殊字元
                         match = re.match(r'(\D*)(\d{2,3})((\s*[~-]\s*)(\d{2,3}))?(.*)?', filter) # 擷取時間
                         if match:
                             content1 = match.group(1) # 時間前面的文字
@@ -74,9 +76,9 @@ async def on_message(message): # 當有訊息時
                                     result = content1 + transform_time(newtime1) + rangecontent + transform_time(newtime2) + content2
                                 resultline += result
                             else:
-                                resultline += tmp
+                                resultline += line
                         else:
-                            resultline += tmp
+                            resultline += line
                         resultline += "\n"
                     await message.channel.send(resultline)
                 else:
