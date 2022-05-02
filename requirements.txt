@@ -3,4 +3,3 @@ psycopg2
 requests
 discord
 python-dotenv
-apscheduler
