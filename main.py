@@ -67,7 +67,7 @@ async def on_message(message): # 當有訊息時
                     resultline = ""
                     for line in lines:
                         filter = line.replace(":", "").replace("\t", "") # 過濾特殊字元
-                        match = re.match(r'(\D*)(\d{2,3})((\s*[~-]\s*)(\d{2,3}))?(.*)?', filter) # 擷取時間
+                        match = re.match(r'(\D*)(\d{2,3})((\s*[~-/]\s*)(\d{2,3}))?(.*)?', filter) # 擷取時間
                         if match:
                             content1 = match.group(1) # 時間前面的文字
                             timerange = match.group(3) # 056~057 這種有範圍的時間
