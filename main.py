@@ -16,6 +16,7 @@ user = os.getenv("user")
 password = os.getenv("password")
 host = os.getenv("host")
 port = os.getenv("port")
+myID = os.getenv("myID")
 client = discord.Client()
 
 header = {
@@ -100,6 +101,18 @@ async def on_message(message): # 當有訊息時
                     await message.channel.send("您輸入的補償秒數錯誤，秒數必須要在 1～90 之間！")
             else:
                 await message.channel.send("您輸入的秒數格式錯誤！正確的格式為\n.tr 補償秒數\n文字軸\n\n(補償秒數後面請直接換行，不要有其他字元)")
+        elif message.author.id == int(myID):
+            separateline = re.match(r"\s*!separateline\s+(\S+)", message2)
+            if separateline:
+                mymsg = separateline.group(1)
+                conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
+                cur = conn.cursor()
+                cur.execute("SELECT * FROM channel_list;")
+                rows = cur.fetchall()
+                for row in rows:
+                    channel = client.get_channel(int(row[0]))
+                    await channel.send("======" + mymsg + "======")
+                conn.close()
     except Exception as e:
         print(e)
 

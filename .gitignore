@@ -1,4 +1,5 @@
 __pycache__
 venv
 .env
-clock.py
+myclock.py
+db.py
