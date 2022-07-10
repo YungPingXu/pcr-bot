@@ -120,9 +120,8 @@ async def on_message(message): # 當有訊息時
 async def on_ready():
     print("We have logged in as {0.user}".format(client))
 
-@tasks.loop(minutes=5)
-async def sonet_news_forward():
-    print("Running sonet_news_forward...")
+def pcr_tw_news_forward():
+    print("Running pcr_tw_news_forward...")
     r = requests.get("http://www.princessconnect.so-net.tw/news", headers=header)
     soup = BeautifulSoup(r.text, "html.parser")
     news_con = soup.select_one(".news_con dl")
@@ -152,7 +151,12 @@ async def sonet_news_forward():
                 r = requests.get("http://www.princessconnect.so-net.tw" + url, headers=header)
                 soup = BeautifulSoup(r.text, "html.parser")
                 content = soup.select_one(".news_con section p")
+                image = None
+                if content.img:
+                    image = content.img["src"]
                 content = BeautifulSoup(str(content).replace("<br/>", "\n"), "html.parser").getText().strip()
+                if len(content) >= 2000:
+                    content = content[0:1900] + f"...\n[查看更多內容]({url})"
                 data = {
                     "username": "pcr台版公告轉發機器人",
                     "embeds": [
@@ -161,6 +165,7 @@ async def sonet_news_forward():
                             "title": title,
                             "url": "http://www.princessconnect.so-net.tw" + url,
                             "description": content,
+                            "image": {"url": image},
                             "timestamp": datetime.utcnow().isoformat(),
                             "color": 1814232,
                             "thumbnail": {"url": "https://i.imgur.com/e4KrYHe.png"},
@@ -182,7 +187,78 @@ async def sonet_news_forward():
                 sleep(1)
     conn.commit()
     conn.close()
-    print("Finished running sonet_news_forward.")
+    print("Finished running pcr_tw_news_forward.")
 
-sonet_news_forward.start()
+def pcr_jp_news_forward():
+    print("Running pcr_jp_news_forward...")
+    r = requests.get("https://priconne-redive.jp/news", headers=header)
+    soup = BeautifulSoup(r.text, "html.parser")
+    news_con = soup.select_one(".news-list-contents")
+    news_box = news_con.find_all("div", class_="article_box")
+    news = []
+    for i in news_box:
+        element = i.select_one("a")
+        news.append({
+            "time": element.select_one("time").text,
+            "title": element.select_one("h4").text,
+            "url": element["href"],
+        })
+    news.reverse()
+    conn = psycopg2.connect(database=database, user=user, password=password, host=host, port=port)
+    cur = conn.cursor()
+    for i in news:
+        time = i["time"]
+        title = i["title"]
+        url = i["url"]
+        cur.execute("SELECT COUNT(*) FROM pcr_jp_news WHERE time='" + time + "' and title='" + title + "' and url='" + url + "';")
+        rows = cur.fetchall()
+        if rows[0][0] == 0:
+            cur.execute("INSERT INTO pcr_jp_news VALUES ('" + time + "', '" + title + "', '" + url + "');")
+            r = requests.get(url, headers=header)
+            soup = BeautifulSoup(r.text, "html.parser")
+            content = soup.select_one(".contents-text")
+            image = None
+            if content.img:
+                image = content.img["src"]
+            content = BeautifulSoup(str(content).replace("<br/>", "\n"), "html.parser").getText().strip()
+            if len(content) >= 2000:
+                content = content[0:1900] + f"...\n[查看更多內容]({url})"
+            data = {
+                "username": "pcr日版公告轉發機器人",
+                "embeds": [
+                    {
+                        "author": {"name": "プリンセスコネクト！Re:Dive - " + time},
+                        "title": title,
+                        "url": url,
+                        "description": content,
+                        "image": {"url": image},
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "color": 1814232,
+                        "thumbnail": {"url": "https://i.imgur.com/e4KrYHe.png"},
+                    }
+                ]
+            }
+            cur.execute("SELECT * FROM jp_news_webhooklist;")
+            rows = cur.fetchall()
+            for row in rows:
+                webhookurl = row[0]
+                result = requests.post(webhookurl, json=data)
+                print(webhookurl)
+                try:
+                    result.raise_for_status()
+                except requests.exceptions.HTTPError as error:
+                    print(error)
+                else:
+                    print("Payload delivered successfully, code {}.".format(result.status_code))
+            sleep(1)
+    conn.commit()
+    conn.close()
+    print("Finished running pcr_jp_news_forward.")
+
+@tasks.loop(minutes=5)
+async def loop_tasks():
+    pcr_tw_news_forward()
+    pcr_jp_news_forward()
+
+loop_tasks.start()
 client.run(bot_token) # the token of your bot

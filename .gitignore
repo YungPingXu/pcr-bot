@@ -3,3 +3,5 @@ venv
 .env
 myclock.py
 db.py
+clan.py
+test.py
