@@ -153,10 +153,11 @@ def pcr_tw_news_forward():
                 content = soup.select_one(".news_con section p")
                 image = None
                 if content.img:
-                    image = content.img["src"]
+                    image = "http://www.princessconnect.so-net.tw" + content.img["src"]
                 content = BeautifulSoup(str(content).replace("<br/>", "\n"), "html.parser").getText().strip()
                 if len(content) >= 2000:
-                    content = content[0:1900] + f"...\n[查看更多內容]({url})"
+                    content = content[0:1900] + f"...\n[查看更多內容](http://www.princessconnect.so-net.tw{url})"
+                print(image)
                 data = {
                     "username": "pcr台版公告轉發機器人",
                     "embeds": [
