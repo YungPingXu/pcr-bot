@@ -17,7 +17,9 @@ password = os.getenv("password")
 host = os.getenv("host")
 port = os.getenv("port")
 myID = os.getenv("myID")
-client = discord.Client()
+intents = discord.Intents.default()
+intents.message_content = True
+client = discord.Client(intents=intents)
 
 header = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
@@ -116,11 +118,17 @@ async def on_message(message): # 當有訊息時
     except Exception as e:
         print(e)
 
+@tasks.loop(minutes=5)
+async def loop_tasks():
+    await pcr_tw_news_forward()
+    await pcr_jp_news_forward()
+
 @client.event
 async def on_ready():
     print("We have logged in as {0.user}".format(client))
+    loop_tasks.start()
 
-def pcr_tw_news_forward():
+async def pcr_tw_news_forward():
     print("Running pcr_tw_news_forward...")
     r = requests.get("http://www.princessconnect.so-net.tw/news", headers=header)
     soup = BeautifulSoup(r.text, "html.parser")
@@ -190,7 +198,7 @@ def pcr_tw_news_forward():
     conn.close()
     print("Finished running pcr_tw_news_forward.")
 
-def pcr_jp_news_forward():
+async def pcr_jp_news_forward():
     print("Running pcr_jp_news_forward...")
     r = requests.get("https://priconne-redive.jp/news", headers=header)
     soup = BeautifulSoup(r.text, "html.parser")
@@ -256,10 +264,4 @@ def pcr_jp_news_forward():
     conn.close()
     print("Finished running pcr_jp_news_forward.")
 
-@tasks.loop(minutes=5)
-async def loop_tasks():
-    pcr_tw_news_forward()
-    pcr_jp_news_forward()
-
-loop_tasks.start()
 client.run(bot_token) # the token of your bot
