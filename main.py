@@ -11,12 +11,6 @@ from bs4 import BeautifulSoup
 
 load_dotenv()
 bot_token = os.getenv("bot_token")
-database = os.getenv("database")
-user = os.getenv("user")
-password = os.getenv("password")
-host = os.getenv("host")
-port = os.getenv("port")
-myID = os.getenv("myID")
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
