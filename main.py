@@ -15,10 +15,6 @@ intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
 
-header = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36"
-}
-
 def checktime(number): # 檢查是不是合法的時間
     return (number >= 0 and number <= 130) and \
            ((number // 100 == 0 and number % 100 <= 59 and number % 100 >= 0) or \
